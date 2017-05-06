@@ -6,9 +6,10 @@ export default Ember.Component.extend({
 
   didInsertElement(){
     this._super(...arguments);
+    let s = this.get('stage');
     this.$().attr('tabindex', 0);
     this.$().focus();
-    let s = this.get('stage');
+
     //s.start();
 
   },

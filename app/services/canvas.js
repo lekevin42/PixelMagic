@@ -202,7 +202,7 @@ export default Ember.Service.extend({
     this.drawingShape.graphics.clear().beginFill(this.CANVAS_COLORS[this.drawColor]).drawRect(0, 0, 1, 1);
     this.drawingShape.x = Math.floor(p.x);
     this.drawingShape.y = Math.floor(p.y);
-    this.drawingShape.visible = false;
+    this.drawingShape.visible = true;
     this.stage.update();
     console.log('visible color');
   },
