@@ -5,20 +5,20 @@ export default Ember.Service.extend({
   CANVAS_WIDTH: 50,
   CANVAS_HEIGHT: 50,
   CANVAS_INITIAL_ZOOM: 20,
-  CANVAS_MIN_ZOOM : 10,
-  CANVAS_MAX_ZOOM : 40,
+  CANVAS_MIN_ZOOM: 10,
+  CANVAS_MAX_ZOOM: 40,
   CANVAS_COLORS: ['#eeeeee', 'red', 'orange', 'yellow', 'green', 'blue', 'purple', '#614126', 'white', 'black'],
 
-  stage: null,                                  // EaselJS stage
-  pixels: null,                                 // EaselJS container to store all the pixels
-  zoom : 20,             // zoom level is broken
+  stage: null, // EaselJS stage
+  pixels: null, // EaselJS container to store all the pixels
+  zoom: 20, // zoom level is broken
 
-  pixelMap : new Array(this.CANVAS_WIDTH),     // map of pixels
+  pixelMap: new Array(this.CANVAS_WIDTH), // map of pixels
 
 
-  isDrawing : false,                      // whether a new pixel to draw is being selected
-  drawingShape : new createjs.Shape(),    // shape to render pixel selector
-  drawColor : 'red',                      // color to render new pixel being drawn
+  //isDrawing: false, // whether a new pixel to draw is being selected
+  drawingShape: new createjs.Shape(), // shape to render pixel selector
+  drawColor: 'red', // color to render new pixel being drawn
 
 
   //WebSocket
@@ -28,12 +28,15 @@ export default Ember.Service.extend({
 
   init() {
     this._super(...arguments);
+
     let pSocket = this.get('pixelService');
 
     pSocket.start(this.PIXEL_SERVER);
 
     pSocket.setCanvasRefreshHandler(pixelData => {
-      if (!this.pixels) return;
+      if (!this.pixels){
+        return;
+      }
       console.log('Pixel data synced');
       for (var x = 0; x < this.CANVAS_WIDTH; x++) {
         for (var y = 0; y < this.CANVAS_HEIGHT; y++) {
@@ -41,12 +44,12 @@ export default Ember.Service.extend({
           var color = this.CANVAS_COLORS[colorID];
 
           if (colorID != this.pixelMap[x][y]['color']) {
-              this.pixelMap[x][y]['shape'].graphics.beginFill(color).drawRect(x, y, 1, 1);
-              this.pixelMap[x][y]['color'] = colorID;
+            this.pixelMap[x][y]['shape'].graphics.beginFill(color).drawRect(x, y, 1, 1);
+            this.pixelMap[x][y]['color'] = colorID;
           }
+        }
       }
-    }
-    this.stage.update();
+      this.stage.update();
     });
 
 
@@ -55,40 +58,42 @@ export default Ember.Service.extend({
 
       var action, received;
       try {
-          received = JSON.parse(data);
-          action = received['action'];
-      } catch(e) {
-          console.log('Received unknown command from server', data);
-          return;
+        received = JSON.parse(data);
+        action = received['action'];
+      } catch (e) {
+        console.log('Received unknown command from server', data);
+        return;
       }
 
       //console.log('ACTION', action);
       switch (action) {
-          case 'canvasInfo':      // in case we want to control the canvas dimensions from the server
-              this.CANVAS_WIDTH = received['width'];
-              this.CANVAS_HEIGHT = received['height'];
-              break;
+        case 'canvasInfo': // in case we want to control the canvas dimensions from the server
+          this.CANVAS_WIDTH = received['width'];
+          this.CANVAS_HEIGHT = received['height'];
+          break;
 
-          case 'updatePixel':
-              if (!pixels) return;
+        case 'updatePixel':
+          if (!this.pixels){
+            return;
+          }
 
-              var x = received['data']['x'];
-              var y = received['data']['y'];
-              var colorID = received['data']['color'];
-              var color = this.CANVAS_COLORS[colorID];
-              console.log('Pixel Update', x, y, 'color', colorID);
+          var x = received['data']['x'];
+          var y = received['data']['y'];
+          var colorID = received['data']['color'];
+          var color = this.CANVAS_COLORS[colorID];
+          console.log('Pixel Update', x, y, 'color', colorID);
 
-              if (colorID != pixelMap[x][y]['color']) {
-                  this.pixelMap[x][y]['shape'].graphics.beginFill(color).drawRect(x, y, 1, 1);
-              }
-              received['data']['shape'] = pixelMap[x][y]['shape'];
-              this.pixelMap[x][y] = received['data'];
+          if (colorID != this.pixelMap[x][y]['color']) {
+            this.pixelMap[x][y]['shape'].graphics.beginFill(color).drawRect(x, y, 1, 1);
+          }
+          received['data']['shape'] = this.pixelMap[x][y]['shape'];
+          this.pixelMap[x][y] = received['data'];
 
-              this.stage.update();
-              break;
+          this.stage.update();
+          break;
 
-          default:
-              break;
+        default:
+          break;
       }
     });
     console.log('Initializing EaselJS Stage');
@@ -101,103 +106,103 @@ export default Ember.Service.extend({
     this.pixels.scaleX = this.zoom;
     this.pixels.scaleY = this.zoom;
 
-    for (var i = 0; i < this.CANVAS_WIDTH; i++){
+    for (var i = 0; i < this.CANVAS_WIDTH; i++) {
       this.pixelMap[i] = Array(this.CANVAS_HEIGHT);
     }
 
-    for(var x = 0; x < this.CANVAS_WIDTH; x++){
-      for (var y = 0; y < this.CANVAS_HEIGHT; y++){
+    for (var x = 0; x < this.CANVAS_WIDTH; x++) {
+      for (var y = 0; y < this.CANVAS_HEIGHT; y++) {
         var shape = new createjs.Shape();
         shape.graphics.beginFill('#eeeeee').drawRect(x, y, 1, 1);
         this.pixels.addChild(shape);
-        this.pixelMap[x][y] = {'color': 0, 'shape': shape};
+        this.pixelMap[x][y] = {
+          'color': 0,
+          'shape': shape
+        };
 
       }
     }
-      this.pixels.addChild(this.drawingShape);
-      this.stage.addChild(this.pixels);
+    this.pixels.addChild(this.drawingShape);
+    this.stage.addChild(this.pixels);
 
-      this.pixels.x = (window.innerWidth - (this.CANVAS_INITIAL_ZOOM * this.CANVAS_WIDTH)) / 2;
-      this.pixels.y = (window.innerHeight - (this.CANVAS_INITIAL_ZOOM * this.CANVAS_HEIGHT)) / 2;
+    this.pixels.x = (window.innerWidth - (this.CANVAS_INITIAL_ZOOM * this.CANVAS_WIDTH)) / 2;
+    this.pixels.y = (window.innerHeight - (this.CANVAS_INITIAL_ZOOM * this.CANVAS_HEIGHT)) / 2;
 
-      this.stage.update();
+    this.stage.update();
 
-      console.log('canvas initialization finished!');
-      this.stage.canvas.width = this.stage.canvas.height = Math.max(window.innerHeight, window.innerWidth);
-      this.stage.update();
+    console.log('canvas initialization finished!');
+    this.stage.canvas.width = this.stage.canvas.height = Math.max(window.innerHeight, window.innerWidth);
+    this.stage.update();
 
-      pSocket.connect(this.CANVAS_WIDTH, this.CANVAS_HEIGHT);
+    pSocket.connect(this.CANVAS_WIDTH, this.CANVAS_HEIGHT);
 
   },
 
   openHandler() {
-      console.log('PixelSocket opened');
+    console.log('PixelSocket opened');
 
-      //this.requestRefresh();
+    //this.requestRefresh();
   },
 
-  closeHandler(){
+  closeHandler() {
     console.log('PixelSocket closed');
   },
 
-  errorHandler(event){
+  errorHandler(event) {
     console.log("PixeSocket error", event.data);
   },
 
-  add(x, y, color){
+  add(x, y, color) {
     let pSocket = this.get('pixelService');
     console.log('Adding a pixel and update');
     if (x >= 0 && y >= 0 && x < this.CANVAS_WIDTH && y < this.CANVAS_HEIGHT) {
-            console.log("Drawing to pixel", x, y, color);
-            this.pixelMap[x][y]['shape'].graphics.clear().beginFill(this.CANVAS_COLORS[this.drawColor]).drawRect(x, y, 1, 1);
-            pSocket.sendPixel(x, y, this.drawColor);
+      console.log("Drawing to pixel", x, y, color);
+      this.pixelMap[x][y]['shape'].graphics.clear().beginFill(this.CANVAS_COLORS[this.drawColor]).drawRect(x, y, 1, 1);
+      pSocket.sendPixel(x, y, this.drawColor);
 
-        }
+    }
     this.stage.update();
   },
 
-  getX(){
-    return this.stage.mouseX ;
+  getX() {
+    return this.stage.mouseX;
   },
 
-  getY(){
-    return this.stage.mouseY ;
+  getY() {
+    return this.stage.mouseY;
   },
 
-  getCoordinates(){
+  getCoordinates() {
     var p = this.pixels.globalToLocal(this.stage.mouseX, this.stage.mouseY);
     return p;
   },
 
-  isDrawing(){
-    return this.isDrawing;
-  },
 
-  getCanvasColorsLength(){
+  getCanvasColorsLength() {
     return this.CANVAS_COLORS.length;
   },
 
-  getColor(){
+  getColor() {
     return this.CANVAS_COLORS[this.drawColor];
   },
 
-  setColor(index){
+  setColor(index) {
     this.drawColor = index;
   },
 
-  getPixels(){
+  getPixels() {
     return this.pixels;
   },
 
-  getMap(){
+  getMap() {
     return this.pixelMap;
   },
 
-  update(){
+  update() {
     this.stage.update();
   },
 
-  visibleColor(p){
+  visibleColor(p) {
     console.log(`X: ${p.x} Y: ${p.y}`);
     this.drawingShape.graphics.clear().beginFill(this.CANVAS_COLORS[this.drawColor]).drawRect(0, 0, 1, 1);
     this.drawingShape.x = Math.floor(p.x);
@@ -207,7 +212,7 @@ export default Ember.Service.extend({
     console.log('visible color');
   },
 
-  moveShape(p){
+  moveShape(p) {
     this.drawingShape.x = Math.floor(p.x);
     this.drawingShape.y = Math.floor(p.y);
     this.stage.update();

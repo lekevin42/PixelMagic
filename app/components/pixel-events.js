@@ -40,10 +40,5 @@ export default Ember.Component.extend({
     let s = this.get('stage');
     var p = s.getCoordinates();
     s.moveShape(p);
-
   },
-
-
-
-
 });
