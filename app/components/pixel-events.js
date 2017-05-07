@@ -1,4 +1,4 @@
-import Ember from 'ember';
+  import Ember from 'ember';
 
 export default Ember.Component.extend({
 
@@ -9,7 +9,7 @@ export default Ember.Component.extend({
     let s = this.get('stage');
     this.$().attr('tabindex', 0);
     this.$().focus();
-
+    Ember.$(document).on('scroll.my-namespace', 'canvas', this.eventHandler);
     //s.start();
 
   },
@@ -18,10 +18,11 @@ export default Ember.Component.extend({
     let s = this.get('stage');
     let index = event.keyCode - 49;
     var drawingShape = new createjs.Shape();
-
+    index += 1
     if ((index >= 0) && (index < s.getCanvasColorsLength())){
       var p = s.getCoordinates(s.getX(), s.getY());
-      s.setColor(index + 1);
+      console.log(index);
+      s.setColor(index);
       s.visibleColor(p);
     }
   },
@@ -32,8 +33,9 @@ export default Ember.Component.extend({
     let p = s.getCoordinates();
     var drawingShape = new createjs.Shape();
     var color = s.getColor();
-
-    s.add(Math.floor(p.x), Math.floor(p.y), color);
+    if (color){
+      s.add(Math.floor(p.x), Math.floor(p.y), color);
+    }
   },
 
   mouseMove(event){
@@ -41,4 +43,8 @@ export default Ember.Component.extend({
     var p = s.getCoordinates();
     s.moveShape(p);
   },
+
+  eventHandler(ev) {
+      console.log('scrolling');
+  }
 });
