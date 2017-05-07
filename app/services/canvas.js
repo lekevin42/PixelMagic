@@ -170,6 +170,12 @@ export default Ember.Service.extend({
          this.stage.update();
      }.bind(this));
 
+     $(window).on('resize', function(e){
+    // canvas MUST always be a square, otherwise it will get distorted
+      this.stage.canvas.width = this.stage.canvas.height = Math.max(window.innerHeight, window.innerWidth);
+      this.stage.update();
+    }.bind(this));
+
   },
 
   openHandler() {
