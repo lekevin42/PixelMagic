@@ -16,7 +16,7 @@ export default Ember.Service.extend({
   pixelMap: new Array(this.CANVAS_WIDTH), // map of pixels
 
 
-  //isDrawing: false, // whether a new pixel to draw is being selected
+  isDrawing: false, // whether a new pixel to draw is being selected
   drawingShape: new createjs.Shape(), // shape to render pixel selector
   drawColor: 'red', // color to render new pixel being drawn
 
@@ -134,7 +134,41 @@ export default Ember.Service.extend({
     this.stage.canvas.width = this.stage.canvas.height = Math.max(window.innerHeight, window.innerWidth);
     this.stage.update();
 
+    var dragX = 0;
+    var dragY = 0;
+
+
     pSocket.connect(this.CANVAS_WIDTH, this.CANVAS_HEIGHT);
+
+    this.pixels.on('mousedown', function(e){
+      dragX = e.rawX - this.pixels.x;
+      dragY = e.rawY - this.pixels.y;
+    }.bind(this));
+
+    this.pixels.on('pressmove', function(e){
+      this.pixels.x = e.rawX - dragX;
+      this.pixels.y = e.rawY - dragY;
+      this.stage.update();
+    }.bind(this))
+
+    $(window).on('mousewheel', function(e){
+         e.preventDefault();
+         this.zoom = (e.originalEvent.wheelDelta > 0 || e.originalEvent.detail < 0) ? this.zoom + 1 : this.zoom - 1;
+         this.zoom = Math.min(Math.max(this.zoom, this.CANVAS_MIN_ZOOM), this.CANVAS_MAX_ZOOM);
+         //console.log("Zoom", zoom);
+
+         // zoom in/out to cursor position
+         var centerX = this.stage.mouseX;         // var centerX = window.innerWidth / 2;
+         var centerY = this.stage.mouseY;         // var centerY = window.innerHeight / 2;
+
+         var local = this.pixels.globalToLocal(centerX, centerY);
+         this.pixels.regX = local.x;
+         this.pixels.regY = local.y;
+         this.pixels.x = centerX;
+         this.pixels.y = centerY;
+         this.pixels.scaleX = this.pixels.scaleY = this.zoom;
+         this.stage.update();
+     }.bind(this));
 
   },
 
@@ -216,6 +250,14 @@ export default Ember.Service.extend({
     this.drawingShape.x = Math.floor(p.x);
     this.drawingShape.y = Math.floor(p.y);
     this.stage.update();
+  },
+
+  setDrawing(value){
+    this.isDrawing = value;
+  },
+
+  getDrawing(){
+    return this.isDrawing;
   }
 
 

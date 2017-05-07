@@ -14,7 +14,7 @@ export default Ember.Service.extend({
 
   messageHandler: null,
 
-  requestRefresh: null,
+  //requestRefresh: null,
 
   init() {
     this._super(...arguments);
@@ -35,9 +35,10 @@ export default Ember.Service.extend({
     this.socket.binaryType = 'arraybuffer';
 
     this.socket.onmessage = function(event) {
-        if (event.data.byteLength == width * height) {
-            if (this.refreshCallback)
+        if (event.data.byteLength === width * height) {
+            if (this.refreshCallback){
               this.refreshCallback(new Uint8Array(event.data));
+            }
 
         } else if (this.messageHandler) {
             this.messageHandler(event.data);
@@ -45,7 +46,7 @@ export default Ember.Service.extend({
 
     }.bind(this);
 
-    this.socket.onclose = function(event) {
+    this.socket.onclose = function() {
         console.log('PixelSocket closed');
     };
 
@@ -53,7 +54,7 @@ export default Ember.Service.extend({
         console.log('PixelSocket websocket error', event.data);
     };
 
-      this.socket.onopen = event => {
+      this.socket.onopen  = () => {
           console.log('PixelSocket opened');
           this.requestRefresh();
       };
