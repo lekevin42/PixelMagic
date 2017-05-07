@@ -38,7 +38,7 @@ export default Ember.Component.extend({
 
     let p = s.getCoordinates();
     var color = s.getColor();
-    if (color){
+    if (color && s.getDrawing()){
       s.add(Math.floor(p.x), Math.floor(p.y), color);
       s.setDrawing(false);
     }
