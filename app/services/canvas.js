@@ -1,4 +1,5 @@
 import Ember from 'ember';
+import createjs from 'ember-createjs';
 
 export default Ember.Service.extend({
   CANVAS_ELEMENT_ID: 'pixelCanvas',

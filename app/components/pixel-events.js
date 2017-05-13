@@ -6,12 +6,10 @@ export default Ember.Component.extend({
 
   didInsertElement(){
     this._super(...arguments);
-    let s = this.get('stage');
+    this.get('stage');
     this.$().attr('tabindex', 0);
     this.$().focus();
     Ember.$(document).on('scroll.my-namespace', 'canvas', this.eventHandler);
-    //s.start();
-
   },
 
   keyPress(event){
