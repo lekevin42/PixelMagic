@@ -6,6 +6,8 @@ module.exports = function(defaults) {
   var app = new EmberApp(defaults, {
     // Add options here
   });
+  app.import('bower_components/jquery/dist/jquery.min.js');
+  app.import('bower_components/EaselJS/lib/easeljs-0.8.2.min.js');
 
   // Use `app.import` to add additional libraries to the generated
   // output files.

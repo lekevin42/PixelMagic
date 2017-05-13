@@ -4,13 +4,6 @@ export default Ember.Component.extend({
 
   stage: Ember.inject.service('canvas'),
 
-  //tagName: 'canvas',
-  //classNames: ['draggableItem'],
-
-  //attributeBindings: ['draggable'],
-
-  //draggable: 'true',
-
   didInsertElement(){
     this._super(...arguments);
     let s = this.get('stage');
@@ -24,7 +17,7 @@ export default Ember.Component.extend({
   keyPress(event){
     let s = this.get('stage');
     let index = event.keyCode - 49;
-    index += 1
+    index += 1;
     if ((index >= 0) && (index < s.getCanvasColorsLength())){
       var p = s.getCoordinates(s.getX(), s.getY());
       s.setDrawing(true);
@@ -33,7 +26,7 @@ export default Ember.Component.extend({
     }
   },
 
-  click(event) {
+  click() {
     let s = this.get('stage');
 
     let p = s.getCoordinates();
@@ -44,7 +37,7 @@ export default Ember.Component.extend({
     }
   },
 
-  mouseMove(event){
+  mouseMove(){
     let s = this.get('stage');
     if(s.getDrawing()){
       var p = s.getCoordinates();

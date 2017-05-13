@@ -43,7 +43,7 @@ export default Ember.Service.extend({
           var colorID = pixelData[x + y * this.CANVAS_HEIGHT];
           var color = this.CANVAS_COLORS[colorID];
 
-          if (colorID != this.pixelMap[x][y]['color']) {
+          if (colorID !== this.pixelMap[x][y]['color']) {
             this.pixelMap[x][y]['shape'].graphics.beginFill(color).drawRect(x, y, 1, 1);
             this.pixelMap[x][y]['color'] = colorID;
           }
@@ -83,7 +83,7 @@ export default Ember.Service.extend({
           var color = this.CANVAS_COLORS[colorID];
           console.log('Pixel Update', x, y, 'color', colorID);
 
-          if (colorID != this.pixelMap[x][y]['color']) {
+          if (colorID !== this.pixelMap[x][y]['color']) {
             this.pixelMap[x][y]['shape'].graphics.beginFill(color).drawRect(x, y, 1, 1);
           }
           received['data']['shape'] = this.pixelMap[x][y]['shape'];
@@ -149,9 +149,9 @@ export default Ember.Service.extend({
       this.pixels.x = e.rawX - dragX;
       this.pixels.y = e.rawY - dragY;
       this.stage.update();
-    }.bind(this))
+    }.bind(this));
 
-    $(window).on('mousewheel', function(e){
+    Ember.$(window).on('mousewheel', function(e){
          e.preventDefault();
          this.zoom = (e.originalEvent.wheelDelta > 0 || e.originalEvent.detail < 0) ? this.zoom + 1 : this.zoom - 1;
          this.zoom = Math.min(Math.max(this.zoom, this.CANVAS_MIN_ZOOM), this.CANVAS_MAX_ZOOM);
@@ -170,11 +170,11 @@ export default Ember.Service.extend({
          this.stage.update();
      }.bind(this));
 
-     $(window).on('resize', function(e){
+     Ember.$(window).on('resize', function(){
     // canvas MUST always be a square, otherwise it will get distorted
       this.stage.canvas.width = this.stage.canvas.height = Math.max(window.innerHeight, window.innerWidth);
       this.stage.update();
-    }.bind(this));
+    }.bind());
 
   },
 
